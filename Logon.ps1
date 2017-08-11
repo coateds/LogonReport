@@ -6,6 +6,10 @@ $InstalledList = ForEach($Item in $InstalledList){"$Item<br>"}
 $OutdatedList = choco outdated
 $OutdatedList = ForEach($Item in $OutdatedList){"$Item<br>"}
 
+# Test for Scripts Dir, create if necessary
+$WorkingFolder = 'C:\Scripts'
+If (!(Test-Path $WorkingFolder)) {New-Item -ItemType Directory -Path $WorkingFolder}
+
 # Create empyty HTML page with header
 $WebServerFilePath = 'c:\Scripts\LogonReport.html'
 $HtmlHeader = "<style>BODY{background-color:#737CA1;}</style>"
