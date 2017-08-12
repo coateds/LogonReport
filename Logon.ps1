@@ -52,7 +52,14 @@ Else
 # User Logon Info
 $UserLogon = "$env:USERDOMAIN\$env:USERNAME"
 $UserInfo = "Logged on User: $UserLogon<br>"
-If (Test-Path ($WorkingFolder + '\' + $UserLogon.Replace('\', '_') + ".txt")) 
+
+# Test for Scripts Dir, create if necessary
+$WorkingFolder = 'C:\Scripts'
+If (!(Test-Path $WorkingFolder)) {New-Item -ItemType Directory -Path $WorkingFolder}
+
+# Look for the last logon flag file and return last write time
+# Or not recorded if the file is not found
+If (Test-Path ($WorkingFolder + '\' + $UserLogon.Replace('\', '_') + ".txt"))
     {
     $Item = Get-Item ($WorkingFolder + '\' + $UserLogon.Replace('\', '_') + ".txt")
     $UserInfo += 'Last logon: ' + $Item.LastWriteTime + '<br>'
@@ -61,10 +68,6 @@ Else
     {
     $UserInfo += "Last logon: Not recorded<br>"
     }
-
-# Test for Scripts Dir, create if necessary
-$WorkingFolder = 'C:\Scripts'
-If (!(Test-Path $WorkingFolder)) {New-Item -ItemType Directory -Path $WorkingFolder}
 
 # Create empyty HTML page with header
 $WebServerFilePath = 'c:\Scripts\LogonReport.html'
@@ -84,6 +87,8 @@ Set-Content -Path ($WorkingFolder + '\' + $UserLogon.Replace('\', '_') + ".txt")
 $ie = New-Object -com internetexplorer.application
 $ie.visible = $true
 $ie.navigate($WebServerFilePath)
+
+# $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 
 # Detritus
 # $adsi = [ADSI]"WinNT://$env:COMPUTERNAME"
