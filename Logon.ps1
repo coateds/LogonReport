@@ -1,6 +1,5 @@
-
 <#
-Simple Function to test WMI connectivity on a remote machine 
+Simple Function to test WMI connectivity on a remote machine
 moving the Try...Catch block into isolation helps prevent any errors on the console
 Return is the WMI OS object when sucessfully connects, Null when it does not
 #>
@@ -26,13 +25,13 @@ Function Write-HtmlBlock
         Mandatory=$true)]
         $Content
         )
-    
+
     $Output = "<b><em>$Title</em></b><br><hr>"
     $Output += "$Content<p></p>"
     $Output += "</body>"
-    
+
     (Get-Content $File).replace('</body>', $Output) | Set-Content $File
-    
+
     }
 
 # Choco Installed
@@ -45,10 +44,23 @@ $OutdatedList = ForEach($Item in $OutdatedList){"$Item<br>"}
 
 # Last Boot Time
 $os = Get-WMI_OS -ComputerName .
-If ($os -ne $null) 
+If ($os -ne $null)
     {$BootTime = [Management.ManagementDateTimeConverter]::ToDateTime($os.LastBootUpTime)}
 Else
     {$BootTime = "Error connection to WMI"}
+
+# User Logon Info
+$UserLogon = "$env:USERDOMAIN\$env:USERNAME"
+$UserInfo = "Logged on User: $UserLogon<br>"
+If (Test-Path ($WorkingFolder + '\' + $UserLogon.Replace('\', '_') + ".txt")) 
+    {
+    $Item = Get-Item ($WorkingFolder + '\' + $UserLogon.Replace('\', '_') + ".txt")
+    $UserInfo += 'Last logon: ' + $Item.LastWriteTime + '<br>'
+    }
+Else
+    {
+    $UserInfo += "Last logon: Not recorded<br>"
+    }
 
 # Test for Scripts Dir, create if necessary
 $WorkingFolder = 'C:\Scripts'
@@ -63,8 +75,17 @@ $null | ConvertTo-HTML -head $HtmlHeader | Out-File $WebServerFilePath
 Write-HtmlBlock -File $WebServerFilePath -Title 'Installed' -Content $InstalledList
 Write-HtmlBlock -File $WebServerFilePath -Title 'Outdated' -Content $OutdatedList
 Write-HtmlBlock -File $WebServerFilePath -Title 'Last Boot Time' -Content $BootTime
+Write-HtmlBlock -File $WebServerFilePath -Title 'User Logon Info' -Content $UserInfo
+
+# Write logon flag file
+Set-Content -Path ($WorkingFolder + '\' + $UserLogon.Replace('\', '_') + ".txt") -Value ''
 
 # Open HTML report in IE
 $ie = New-Object -com internetexplorer.application
 $ie.visible = $true
 $ie.navigate($WebServerFilePath)
+
+# Detritus
+# $adsi = [ADSI]"WinNT://$env:COMPUTERNAME"
+# $UserInfo += $adsi.Children | where {$_.SchemaClassName -eq 'user'} | ft name,lastlogin
+# $UserInfo += '<br>'
