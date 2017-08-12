@@ -18,6 +18,13 @@ At every logon instance of this script, write/overwrite a flag file with user na
 scheduled task instance of this script will test for the existence of the flag file. If found it will compare modified date with current date. If delta is greater than 24 hours, will run the script
 ```
 
+## Scheduled Tasks v Scheduled Jobs
+* Try setting up both
+  * Scheduled Task code - *Done*
+  * Scheduled Job code
+* <a href='https://blogs.technet.microsoft.com/heyscriptingguy/2013/11/23/using-scheduled-tasks-and-scheduled-jobs-in-powershell/'>Differences explanation</a>
+* See tasks.ps1 for documentation
+
 ## Run as a task
 * Set up script to run in two modes
 * Logon mode (work on this first)
