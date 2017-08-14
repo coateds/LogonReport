@@ -42,6 +42,9 @@ $InstalledList = ForEach($Item in $InstalledList){"$Item<br>"}
 $OutdatedList = choco outdated
 $OutdatedList = ForEach($Item in $OutdatedList){"$Item<br>"}
 
+# Last Windows Update applied
+$LastUpdate = (get-hotfix | sort installedon | select -last 1).InstalledOn
+
 # Last Boot Time
 $os = Get-WMI_OS -ComputerName .
 If ($os -ne $null)
@@ -77,6 +80,7 @@ $null | ConvertTo-HTML -head $HtmlHeader | Out-File $WebServerFilePath
 # Add Blocks of content
 Write-HtmlBlock -File $WebServerFilePath -Title 'Installed' -Content $InstalledList
 Write-HtmlBlock -File $WebServerFilePath -Title 'Outdated' -Content $OutdatedList
+Write-HtmlBlock -File $WebServerFilePath -Title 'Last Windows Update applied' -Content $LastUpdate
 Write-HtmlBlock -File $WebServerFilePath -Title 'Last Boot Time' -Content $BootTime
 Write-HtmlBlock -File $WebServerFilePath -Title 'User Logon Info' -Content $UserInfo
 
